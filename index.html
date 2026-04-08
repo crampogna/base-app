@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base — Dashboard Personal</title>
+<style>
+:root {
+  --bg:#0D1117; --bg2:#161B22; --bg3:#1C2128; --border:#30363D;
+  --text:#E6EDF3; --text2:#8B949E;
+  --blue:#58A6FF; --green:#3FB950; --yellow:#D29922;
+  --red:#F85149; --purple:#BC8CFF; --orange:#E3965C;
+  --sidebar-w:220px; --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;}
+.screen.active{display:flex;}
+
+/* SETUP / LOGIN */
+#screen-setup,#screen-login{align-items:center;justify-content:center;flex-direction:column;gap:0;}
+.auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:40px;width:420px;max-width:95vw;}
+.auth-logo{text-align:center;margin-bottom:32px;}
+.auth-logo .icon{width:56px;height:56px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:12px;}
+.auth-logo h1{font-size:26px;font-weight:700;letter-spacing:-0.5px;}
+.auth-logo p{font-size:14px;color:var(--text2);margin-top:4px;}
+.auth-step{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+.auth-step-num{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.auth-step-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.auth-step-desc{font-size:12px;color:var(--text2);line-height:1.5;}
+.auth-step a{color:var(--blue);text-decoration:none;}
+.auth-step a:hover{text-decoration:underline;}
+.auth-divider{height:1px;background:var(--border);margin:20px 0;}
+#googleSignInBtn{display:flex;justify-content:center;margin-top:4px;}
+.login-info{font-size:13px;color:var(--text2);text-align:center;margin-top:16px;line-height:1.5;}
+.login-info a{color:var(--blue);cursor:pointer;}
+
+/* APP LAYOUT */
+#screen-app{flex-direction:row;}
+.sidebar{width:var(--sidebar-w);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:24px 0;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.sidebar-logo{padding:0 20px 24px;display:flex;align-items:center;gap:10px;}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.logo-text{font-size:18px;font-weight:700;letter-spacing:-0.5px;}
+.logo-sub{font-size:10px;color:var(--text2);letter-spacing:1px;text-transform:uppercase;}
+.nav-section{padding:0 12px;margin-bottom:8px;}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--text2);padding:0 8px 8px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;color:var(--text2);transition:all .15s;margin-bottom:2px;text-decoration:none;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:rgba(88,166,255,.12);color:var(--blue);}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-bottom{margin-top:auto;padding:12px 16px 0;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;margin-bottom:8px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;}
+.user-name{font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sync-row{display:flex;align-items:center;justify-content:space-between;padding:4px 8px;border-radius:6px;}
+#syncStatus{font-size:11px;color:var(--text2);}
+.date-chip{font-size:12px;color:var(--text2);background:var(--bg3);border-radius:8px;padding:7px 10px;display:flex;align-items:center;gap:6px;margin-top:8px;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);flex:1;padding:32px 36px;overflow-y:auto;height:100vh;}
+.page{display:none;}
+.page.active{display:block;}
+.page-header{margin-bottom:28px;}
+.page-title{font-size:26px;font-weight:700;letter-spacing:-.5px;display:flex;align-items:center;gap:12px;}
+.page-sub{color:var(--text2);font-size:14px;margin-top:4px;}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text2);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:inherit;}
+.btn-primary{background:var(--blue);color:#000;}
+.btn-primary:hover{opacity:.85;}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--bg3);color:var(--text);}
+.btn-danger{background:rgba(248,81,73,.15);color:var(--red);border:1px solid rgba(248,81,73,.2);}
+.btn-danger:hover{background:rgba(248,81,73,.25);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-icon{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:30px;height:30px;padding:0;border-radius:6px;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;}
+.btn-icon:hover{color:var(--text);border-color:var(--text2);}
+
+/* INPUTS */
+.input,.select,.textarea{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;font-family:inherit;font-size:14px;outline:none;width:100%;transition:border-color .15s;}
+.input{padding:9px 12px;}
+.select{padding:9px 12px;cursor:pointer;}
+.textarea{padding:10px 12px;resize:vertical;min-height:80px;}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--blue);}
+.input::placeholder,.textarea::placeholder{color:var(--text2);}
+.form-row{display:grid;gap:12px;margin-bottom:12px;}
+.form-row.cols-2{grid-template-columns:1fr 1fr;}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr;}
+.label{font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;}
+option{background:var(--bg2);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:translateY(20px);transition:transform .2s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.modal-title{font-size:17px;font-weight:600;}
+.modal-close{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;padding:4px;line-height:1;}
+.modal-close:hover{color:var(--text);}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:10px;margin-bottom:20px;width:fit-content;}
+.tab{padding:7px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .15s;border:none;background:transparent;font-family:inherit;}
+.tab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.3);}
+
+/* BADGES & STATS */
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.stat-val{font-size:28px;font-weight:700;line-height:1;}
+.stat-lbl{font-size:11px;color:var(--text2);margin-top:4px;}
+.habits-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+
+/* HABIT */
+.habit-grid{display:flex;flex-direction:column;gap:10px;}
+.habit-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;transition:border-color .15s;}
+.habit-item:hover{border-color:var(--text2);}
+.habit-row{display:flex;align-items:center;gap:14px;}
+.habit-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;flex-shrink:0;}
+.habit-info{flex:1;}
+.habit-name{font-size:15px;font-weight:500;}
+.habit-meta{font-size:12px;color:var(--text2);margin-top:2px;}
+.streak-badge{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--orange);background:rgba(227,150,92,.1);padding:4px 10px;border-radius:20px;white-space:nowrap;}
+.month-nav{display:flex;align-items:center;gap:10px;}
+.month-nav button{background:var(--bg3);border:1px solid var(--border);color:var(--text);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.month-nav button:hover{border-color:var(--text2);}
+.month-label{font-size:14px;font-weight:600;min-width:130px;text-align:center;}
+
+/* GOAL */
+.goal-list{display:flex;flex-direction:column;gap:12px;}
+.goal-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.goal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.goal-bar-bg{height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;margin-bottom:8px;}
+.goal-bar-fill{height:100%;border-radius:4px;transition:width .5s ease;}
+.goal-footer{display:flex;justify-content:space-between;align-items:center;}
+.goal-vals{font-size:12px;color:var(--text2);}
+
+/* TASK */
+.filter-btn{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .15s;font-family:inherit;}
+.filter-btn.active{background:var(--blue);color:#000;border-color:var(--blue);}
+.filter-btn:hover:not(.active){border-color:var(--text2);color:var(--text);}
+.task-list{display:flex;flex-direction:column;gap:8px;}
+.task-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;transition:all .15s;}
+.task-item:hover{border-color:var(--text2);}
+.task-item.done{opacity:.5;}
+.task-cb{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);background:transparent;cursor:pointer;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s;}
+.task-cb.checked{background:var(--blue);border-color:var(--blue);color:#000;}
+.task-body{flex:1;min-width:0;}
+.task-title{font-size:14px;font-weight:500;}
+.task-item.done .task-title{text-decoration:line-through;color:var(--text2);}
+.task-meta{font-size:12px;color:var(--text2);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;}
+
+/* EXPENSE */
+.expense-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.summary-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.summary-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.summary-val{font-size:22px;font-weight:700;}
+.summary-sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.expense-list{display:flex;flex-direction:column;gap:6px;}
+.expense-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px;}
+.expense-cat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.expense-info{flex:1;}
+.expense-name{font-size:14px;font-weight:500;}
+.expense-meta{font-size:12px;color:var(--text2);margin-top:2px;}
+.expense-amount{font-size:15px;font-weight:600;color:var(--red);}
+.cat-bar{display:flex;flex-direction:column;gap:10px;}
+.cat-row{display:flex;align-items:center;gap:10px;}
+.cat-label{font-size:13px;min-width:110px;display:flex;align-items:center;gap:6px;}
+.cat-bar-bg{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden;}
+.cat-bar-fill{height:100%;border-radius:4px;}
+.cat-amount{font-size:12px;color:var(--text2);min-width:70px;text-align:right;}
+
+/* RECEIPT THUMB */
+.receipt-thumb{width:100%;max-height:120px;object-fit:cover;border-radius:8px;margin-top:10px;border:1px solid var(--border);}
+.receipt-upload-area{border:2px dashed var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:border-color .15s;font-size:13px;color:var(--text2);}
+.receipt-upload-area:hover{border-color:var(--blue);color:var(--blue);}
+.receipt-upload-area.scanning{border-color:var(--yellow);color:var(--yellow);}
+
+/* CHAT */
+#chatToggle{position:fixed;bottom:28px;right:28px;width:52px;height:52px;border-radius:50%;background:var(--blue);border:none;font-size:22px;cursor:pointer;z-index:200;box-shadow:0 4px 20px rgba(88,166,255,.4);display:flex;align-items:center;justify-content:center;transition:transform .2s;}
+#chatToggle:hover{transform:scale(1.08);}
+#chatPanel{position:fixed;bottom:90px;right:28px;width:360px;max-width:calc(100vw - 56px);background:var(--bg2);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:200;display:flex;flex-direction:column;overflow:hidden;transform:translateY(20px) scale(.95);opacity:0;pointer-events:none;transition:all .2s;max-height:70vh;}
+#chatPanel.open{transform:translateY(0) scale(1);opacity:1;pointer-events:all;}
+.chat-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.chat-header-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.chat-header-title{font-size:14px;font-weight:600;}
+.chat-header-sub{font-size:11px;color:var(--text2);}
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:100px;}
+.chat-msg{padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.4;max-width:88%;}
+.chat-msg.user{background:var(--blue);color:#000;align-self:flex-end;border-bottom-right-radius:3px;}
+.chat-msg.assistant{background:var(--bg3);color:var(--text);align-self:flex-start;border-bottom-left-radius:3px;}
+.chat-msg.assistant.thinking{color:var(--text2);font-style:italic;}
+.chat-input-row{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;}
+#chatInput{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;flex:1;outline:none;resize:none;height:36px;overflow:hidden;}
+#chatInput:focus{border-color:var(--blue);}
+#chatSend{background:var(--blue);border:none;color:#000;width:32px;height:32px;border-radius:7px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end;}
+#chatSend:hover{opacity:.85;}
+.chat-hint{font-size:11px;color:var(--text2);padding:0 12px 8px;line-height:1.4;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:14px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.success{border-color:var(--green);}
+.toast.error{border-color:var(--red);}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:40px;color:var(--text2);font-size:14px;}
+.empty-state .emoji{font-size:36px;display:block;margin-bottom:12px;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--text2);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 1: SETUP (first time)
+═══════════════════════════════════════════ -->
+<div id="screen-setup" class="screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="icon">◈</div>
+      <h1>Base</h1>
+      <p>Configuración inicial — solo una vez</p>
+    </div>
+
+    <div class="auth-step">
+      <div class="auth-step-num">Paso 1 — Google Cloud</div>
+      <div class="auth-step-title">Crear credencial OAuth</div>
+      <div class="auth-step-desc">
+        Ve a <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a> →
+        Crea un proyecto → Habilita <b>Google Drive API</b> → Ve a <b>Credenciales</b> →
+        Crear credencial → <b>ID de cliente OAuth 2.0</b> → Tipo: <b>Aplicación web</b> →
+        Agrega tu URL de GitHub Pages en "Orígenes autorizados". Copia el Client ID.
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-bottom:0">
+      <div>
+        <div class="label">Google OAuth Client ID</div>
+        <input class="input" id="setup_clientId" placeholder="xxxxxx.apps.googleusercontent.com">
+      </div>
+    </div>
+
+    <div class="auth-divider"></div>
+
+    <div class="auth-step">
+      <div class="auth-step-num">Paso 2 — Anthropic (opcional)</div>
+      <div class="auth-step-title">API Key para el chat con IA</div>
+      <div class="auth-step-desc">
+        Necesaria para el chat en lenguaje natural y el escaneo de recibos.
+        Obtenla en <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.
+        Podés agregarla después desde Ajustes.
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-bottom:0">
+      <div>
+        <div class="label">Anthropic API Key (opcional)</div>
+        <input class="input" id="setup_apiKey" placeholder="sk-ant-...">
+      </div>
+    </div>
+
+    <div style="margin-top:20px;">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="saveSetup()">
+        Guardar y continuar →
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 2: LOGIN
+═══════════════════════════════════════════ -->
+<div id="screen-login" class="screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="icon">◈</div>
+      <h1>Base</h1>
+      <p>Tu dashboard personal</p>
+    </div>
+    <div id="googleSignInBtn"></div>
+    <div class="login-info">
+      Tus datos se guardan en tu Google Drive personal.<br>
+      Nadie más tiene acceso a tu información.<br><br>
+      <a onclick="showScreen('setup')">⚙️ Cambiar configuración</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SCREEN 3: APP
+═══════════════════════════════════════════ -->
+<div id="screen-app" class="screen">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">◈</div>
+      <div>
+        <div class="logo-text">Base</div>
+        <div class="logo-sub">Dashboard</div>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Personal</div>
+      <a class="nav-item active" onclick="navigate('habitos')" href="#">
+        <span class="icon">🔥</span> Hábitos
+      </a>
+      <a class="nav-item" onclick="navigate('objetivos')" href="#">
+        <span class="icon">🎯</span> Objetivos
+      </a>
+      <a class="nav-item" onclick="navigate('tareas')" href="#">
+        <span class="icon">✅</span> Tareas
+      </a>
+      <a class="nav-item" onclick="navigate('gastos')" href="#">
+        <span class="icon">💰</span> Gastos
+      </a>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <div>
+          <div class="user-name" id="userName">—</div>
+          <div style="font-size:10px;color:var(--text2)" id="userEmail">—</div>
+        </div>
+      </div>
+      <div class="sync-row">
+        <span id="syncStatus" style="font-size:11px;color:var(--text2)">✓ Guardado</span>
+        <button class="btn-icon" style="width:24px;height:24px;font-size:12px;" onclick="forceSave()" title="Guardar ahora">↑</button>
+      </div>
+      <button onclick="openModal('modalSettings')" style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 10px;margin-top:8px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+        ⚙️ Ajustes
+      </button>
+      <div class="date-chip"><span>📅</span><span id="sidebarDate">—</span></div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- HÁBITOS -->
+    <div id="page-habitos" class="page active">
+      <div class="page-header">
+        <div class="page-title"><span>🔥</span> Hábitos</div>
+        <div class="page-sub">Registra tus hábitos diarios y mantén tu racha.</div>
+      </div>
+      <div class="habits-stats" id="habitStats"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="font-size:14px;font-weight:600;">Hoy — <span id="todayLabel"></span></div>
+        <button class="btn btn-primary" onclick="openModal('modalHabit')">+ Nuevo hábito</button>
+      </div>
+      <div class="habit-grid" id="habitList"></div>
+      <div class="divider"></div>
+      <div class="card" style="margin-top:4px;">
+        <div class="card-title">
+          Calendario del mes
+          <div class="month-nav">
+            <button onclick="changeHabitMonth(-1)">‹</button>
+            <span class="month-label" id="habitMonthLabel"></span>
+            <button onclick="changeHabitMonth(1)">›</button>
+          </div>
+        </div>
+        <div id="habitCalendar"></div>
+      </div>
+    </div>
+
+    <!-- OBJETIVOS -->
+    <div id="page-objetivos" class="page">
+      <div class="page-header">
+        <div class="page-title"><span>🎯</span> Objetivos</div>
+        <div class="page-sub">Monitorea el avance de tus metas personales.</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+        <button class="btn btn-primary" onclick="openModal('modalGoal')">+ Nuevo objetivo</button>
+      </div>
+      <div class="goal-list" id="goalList"></div>
+    </div>
+
+    <!-- TAREAS -->
+    <div id="page-tareas" class="page">
+      <div class="page-header">
+        <div class="page-title"><span>✅</span> Tareas</div>
+        <div class="page-sub">Organiza todo lo que tienes pendiente.</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="filter-btn active" onclick="filterTasks('todas')" data-filter="todas">Todas</button>
+          <button class="filter-btn" onclick="filterTasks('pendiente')" data-filter="pendiente">Pendientes</button>
+          <button class="filter-btn" onclick="filterTasks('completada')" data-filter="completada">Completadas</button>
+          <button class="filter-btn" onclick="filterTasks('alta')" data-filter="alta">🔴 Alta</button>
+          <button class="filter-btn" onclick="filterTasks('media')" data-filter="media">🟡 Media</button>
+          <button class="filter-btn" onclick="filterTasks('baja')" data-filter="baja">🟢 Baja</button>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('modalTask')">+ Nueva tarea</button>
+      </div>
+      <div class="task-list" id="taskList"></div>
+    </div>
+
+    <!-- GASTOS -->
+    <div id="page-gastos" class="page">
+      <div class="page-header">
+        <div class="page-title"><span>💰</span> Gastos</div>
+        <div class="page-sub">Controla tus finanzas en euros.</div>
+      </div>
+      <div class="expense-summary" id="expenseSummary"></div>
+      <div class="grid-2" style="gap:20px;">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="font-size:14px;font-weight:600;">Movimientos</div>
+              <div class="month-nav">
+                <button onclick="changeExpenseMonth(-1)">‹</button>
+                <span class="month-label" id="expenseMonthLabel"></span>
+                <button onclick="changeExpenseMonth(1)">›</button>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modalExpense')">+ Agregar</button>
+          </div>
+          <div class="tabs" style="margin-bottom:14px;">
+            <button class="tab active" id="etab_todos" onclick="switchExpenseTab('todos')">Todos</button>
+            <button class="tab" id="etab_diario" onclick="switchExpenseTab('diario')">📅 Diarios</button>
+            <button class="tab" id="etab_fijo" onclick="switchExpenseTab('fijo')">🔁 Fijos</button>
+            <button class="tab" id="etab_planificado" onclick="switchExpenseTab('planificado')">📋 Planificado</button>
+          </div>
+          <div class="expense-list" id="expenseList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Por categoría</div>
+          <div class="cat-bar" id="expenseCatBar"></div>
+        </div>
+      </div>
+    </div>
+
+  </main><!-- /main -->
+</div><!-- /screen-app -->
+
+<!-- ═══════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════ -->
+
+<!-- Hábito -->
+<div class="modal-overlay" id="modalHabit">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nuevo hábito</div>
+      <button class="modal-close" onclick="closeModal('modalHabit')">×</button>
+    </div>
+    <div class="form-row"><div>
+      <div class="label">Nombre</div>
+      <input class="input" id="h_name" placeholder="Ej: Meditación, Ejercicio...">
+    </div></div>
+    <div class="form-row cols-2">
+      <div><div class="label">Emoji</div><input class="input" id="h_emoji" placeholder="🌟" maxlength="2"></div>
+      <div><div class="label">Color</div>
+        <select class="select" id="h_color">
+          <option value="blue">Azul</option><option value="green">Verde</option>
+          <option value="purple">Morado</option><option value="orange">Naranja</option>
+          <option value="red">Rojo</option><option value="yellow">Amarillo</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row"><div>
+      <div class="label">Sub-actividades <span style="color:var(--text2);font-weight:400">(opcional)</span></div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:8px;">Ej: para "Ejercicio" → Caminar, Abdominales...</div>
+      <div id="h_sublist" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input class="input" id="h_subin" placeholder="Nombre de la actividad..." style="flex:1;">
+        <button class="btn btn-ghost btn-sm" onclick="addSubActivity()">+ Agregar</button>
+      </div>
+    </div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalHabit')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addHabit()">Crear hábito</button>
+    </div>
+  </div>
+</div>
+
+<!-- Objetivo -->
+<div class="modal-overlay" id="modalGoal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="goalModalTitle">Nuevo objetivo</div>
+      <button class="modal-close" onclick="closeModal('modalGoal')">×</button>
+    </div>
+    <div class="form-row"><div>
+      <div class="label">Nombre</div>
+      <input class="input" id="g_name" placeholder="Ej: Ahorrar 10.000€, Leer 12 libros...">
+    </div></div>
+    <div class="form-row cols-3">
+      <div><div class="label">Valor actual</div><input class="input" type="number" id="g_current" placeholder="0"></div>
+      <div><div class="label">Meta</div><input class="input" type="number" id="g_target" placeholder="100"></div>
+      <div><div class="label">Unidad</div><input class="input" id="g_unit" placeholder="€, km, libros..."></div>
+    </div>
+    <div class="form-row cols-2">
+      <div><div class="label">Color</div>
+        <select class="select" id="g_color">
+          <option value="blue">Azul</option><option value="green">Verde</option>
+          <option value="purple">Morado</option><option value="orange">Naranja</option>
+        </select>
+      </div>
+      <div><div class="label">Fecha límite (opcional)</div><input class="input" type="date" id="g_deadline"></div>
+    </div>
+    <input type="hidden" id="g_edit_id">
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalGoal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGoal()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Progreso Objetivo -->
+<div class="modal-overlay" id="modalGoalProgress">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Actualizar progreso</div>
+      <button class="modal-close" onclick="closeModal('modalGoalProgress')">×</button>
+    </div>
+    <div id="goalProgressInfo" style="margin-bottom:16px;color:var(--text2);font-size:14px;"></div>
+    <div class="form-row"><div>
+      <div class="label">Nuevo valor actual</div>
+      <input class="input" type="number" id="gp_value" placeholder="0">
+    </div></div>
+    <input type="hidden" id="gp_id">
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalGoalProgress')">Cancelar</button>
+      <button class="btn btn-primary" onclick="updateGoalProgress()">Actualizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tarea -->
+<div class="modal-overlay" id="modalTask">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nueva tarea</div>
+      <button class="modal-close" onclick="closeModal('modalTask')">×</button>
+    </div>
+    <div class="form-row"><div>
+      <div class="label">Título</div>
+      <input class="input" id="t_title" placeholder="¿Qué necesitas hacer?">
+    </div></div>
+    <div class="form-row"><div>
+      <div class="label">Notas (opcional)</div>
+      <textarea class="textarea" id="t_notes" placeholder="Detalles..."></textarea>
+    </div></div>
+    <div class="form-row cols-3">
+      <div><div class="label">Prioridad</div>
+        <select class="select" id="t_priority">
+          <option value="media">Media</option>
+          <option value="alta">Alta 🔴</option>
+          <option value="baja">Baja 🟢</option>
+        </select>
+      </div>
+      <div><div class="label">Categoría</div><input class="input" id="t_cat" placeholder="Trabajo, Personal..."></div>
+      <div><div class="label">Fecha límite</div><input class="input" type="date" id="t_due"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalTask')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addTask()">Agregar tarea</button>
+    </div>
+  </div>
+</div>
+
+<!-- Gasto -->
+<div class="modal-overlay" id="modalExpense">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Agregar gasto</div>
+      <button class="modal-close" onclick="closeModal('modalExpense')">×</button>
+    </div>
+    <!-- Receipt scanner -->
+    <div class="form-row"><div>
+      <div class="label">Escanear recibo con IA <span style="color:var(--text2);font-weight:400">(opcional)</span></div>
+      <div class="receipt-upload-area" id="receiptArea" onclick="document.getElementById('receiptInput').click()">
+        📷 Subir foto del recibo — Claude leerá los datos automáticamente
+      </div>
+      <input type="file" id="receiptInput" accept="image/*" style="display:none" onchange="handleReceiptUpload(event)">
+      <img id="receiptThumb" class="receipt-thumb" style="display:none">
+    </div></div>
+    <div class="form-row cols-2">
+      <div><div class="label">Descripción</div><input class="input" id="e_desc" placeholder="Ej: Supermercado..."></div>
+      <div><div class="label">Monto (€)</div><input class="input" type="number" id="e_amount" placeholder="0.00" step="0.01"></div>
+    </div>
+    <div class="form-row cols-2">
+      <div><div class="label">Categoría</div>
+        <select class="select" id="e_cat">
+          <option value="Alimentación">🍔 Alimentación</option>
+          <option value="Transporte">🚗 Transporte</option>
+          <option value="Entretenimiento">🎬 Entretenimiento</option>
+          <option value="Salud">💊 Salud</option>
+          <option value="Ropa">👕 Ropa</option>
+          <option value="Hogar">🏠 Hogar</option>
+          <option value="Educación">📚 Educación</option>
+          <option value="Suscripciones">📱 Suscripciones</option>
+          <option value="Otros">📦 Otros</option>
+        </select>
+      </div>
+      <div><div class="label">Fecha</div><input class="input" type="date" id="e_date"></div>
+    </div>
+    <div class="form-row"><div>
+      <div class="label">Tipo</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:2px;">
+        <label id="lbl_diario" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;background:var(--bg3);border:2px solid var(--blue);border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;text-align:center;">
+          <input type="radio" name="e_type" value="diario" checked style="accent-color:var(--blue);"> 📅 Diario
+        </label>
+        <label id="lbl_fijo" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;background:var(--bg3);border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;text-align:center;">
+          <input type="radio" name="e_type" value="fijo" style="accent-color:var(--purple);"> 🔁 Fijo
+        </label>
+        <label id="lbl_planificado" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;background:var(--bg3);border:2px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;font-weight:500;text-align:center;">
+          <input type="radio" name="e_type" value="planificado" style="accent-color:var(--yellow);"> 📋 Planificado
+        </label>
+      </div>
+    </div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modalExpense')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addExpense()">Registrar gasto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ajustes -->
+<div class="modal-overlay" id="modalSettings">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ Ajustes</div>
+      <button class="modal-close" onclick="closeModal('modalSettings')">×</button>
+    </div>
+    <div class="form-row"><div>
+      <div class="label">Anthropic API Key</div>
+      <input class="input" id="settings_apiKey" placeholder="sk-ant-..." type="password">
+    </div></div>
+    <div class="form-row"><div>
+      <div class="label">Google OAuth Client ID</div>
+      <input class="input" id="settings_clientId" placeholder="xxxxxx.apps.googleusercontent.com">
+    </div></div>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-bottom:16px;" onclick="saveSettingsModal()">💾 Guardar configuración</button>
+    <div class="divider"></div>
+    <div style="background:rgba(248,81,73,.07);border:1px solid rgba(248,81,73,.2);border-radius:10px;padding:16px;">
+      <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:6px;">⚠️ Zona peligrosa</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Borra todos los datos locales y en Google Drive. No se puede deshacer.</div>
+      <button class="btn btn-danger btn-sm" onclick="resetAllData()">🗑 Borrar todos los datos</button>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;" onclick="exportData()">⬇ Exportar JSON</button>
+      <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;" onclick="document.getElementById('importInput').click()">⬆ Importar JSON</button>
+    </div>
+    <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(event)">
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="signOut()">Cerrar sesión</button>
+      <button class="btn btn-primary" onclick="closeModal('modalSettings')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Panel -->
+<button id="chatToggle" onclick="toggleChat()" title="Chat con IA">💬</button>
+<div id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-icon">✦</div>
+    <div>
+      <div class="chat-header-title">Asistente Base</div>
+      <div class="chat-header-sub">Escribí en lenguaje natural</div>
+    </div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-hint">Ej: "gasté 25€ en el super hoy" · "nueva tarea: llamar al banco" · "hice ejercicio"</div>
+  <div class="chat-input-row">
+    <textarea id="chatInput" placeholder="Escribí algo..." rows="1" onkeydown="chatKeydown(event)"></textarea>
+    <button id="chatSend" onclick="sendChat()">→</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIG & CONSTANTS
+// ═══════════════════════════════════════════════════════
+const DRIVE_FILE_NAME = 'base_app_datos.json';
+const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS_ES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const COLORS = { blue:'#58A6FF', green:'#3FB950', purple:'#BC8CFF', orange:'#E3965C', red:'#F85149', yellow:'#D29922' };
+const CAT_ICONS = { 'Alimentación':'🍔','Transporte':'🚗','Entretenimiento':'🎬','Salud':'💊','Ropa':'👕','Hogar':'🏠','Educación':'📚','Suscripciones':'📱','Otros':'📦' };
+const CAT_COLORS = ['#58A6FF','#3FB950','#BC8CFF','#E3965C','#F85149','#D29922','#79c0ff','#56d364','#d2a8ff'];
+const CAT_BG = { 'Alimentación':'rgba(88,166,255,.15)','Transporte':'rgba(63,185,80,.15)','Entretenimiento':'rgba(188,140,255,.15)','Salud':'rgba(63,185,80,.15)','Ropa':'rgba(227,150,92,.15)','Hogar':'rgba(88,166,255,.15)','Educación':'rgba(210,153,34,.15)','Suscripciones':'rgba(188,140,255,.15)','Otros':'rgba(139,148,158,.15)' };
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let data = { habits:[], habitLogs:{}, goals:[], tasks:[], expenses:[] };
+let userInfo = null;
+let accessToken = null;
+let driveFileId = null;
+let syncTimer = null;
+let tempSubActivities = [];
+let taskFilter = 'todas';
+let expenseTab = 'todos';
+let habitCalMonth = new Date().getMonth();
+let habitCalYear  = new Date().getFullYear();
+let expenseMonth  = new Date().getMonth();
+let expenseYear   = new Date().getFullYear();
+
+// ═══════════════════════════════════════════════════════
+// SETTINGS (stored in localStorage — only config, not data)
+// ═══════════════════════════════════════════════════════
+function getSettings() {
+  try { return JSON.parse(localStorage.getItem('base_settings_v1') || '{}'); } catch(e) { return {}; }
+}
+function saveSettings(s) { localStorage.setItem('base_settings_v1', JSON.stringify(s)); }
+
+function saveSetup() {
+  const clientId = document.getElementById('setup_clientId').value.trim();
+  const apiKey   = document.getElementById('setup_apiKey').value.trim();
+  if (!clientId) { toast('Ingresá el Google Client ID', 'error'); return; }
+  saveSettings({ ...getSettings(), googleClientId: clientId, anthropicKey: apiKey });
+  initGoogleAuth();
+}
+
+function saveSettingsModal() {
+  const s = getSettings();
+  const apiKey   = document.getElementById('settings_apiKey').value.trim();
+  const clientId = document.getElementById('settings_clientId').value.trim();
+  if (apiKey) s.anthropicKey = apiKey;
+  if (clientId) s.googleClientId = clientId;
+  saveSettings(s);
+  closeModal('modalSettings');
+  toast('Configuración guardada');
+}
+
+// ═══════════════════════════════════════════════════════
+// GOOGLE DRIVE AUTH
+// ═══════════════════════════════════════════════════════
+let tokenClient = null;
+
+function initGoogleAuth() {
+  const s = getSettings();
+  if (!s.googleClientId) { showScreen('setup'); return; }
+  showScreen('login');
+
+  // Wait for GIS to load
+  const tryInit = () => {
+    if (typeof google === 'undefined' || !google.accounts) {
+      setTimeout(tryInit, 300); return;
+    }
+    google.accounts.id.initialize({
+      client_id: s.googleClientId,
+      callback: handleCredentialResponse,
+      auto_select: true
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('googleSignInBtn'),
+      { theme:'filled_blue', size:'large', text:'signin_with', shape:'rounded', width:300 }
+    );
+    google.accounts.id.prompt();
+
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: s.googleClientId,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback: handleTokenResponse
+    });
+  };
+  tryInit();
+}
+
+function handleCredentialResponse(response) {
+  try {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    userInfo = { name: payload.name, email: payload.email, picture: payload.picture };
+  } catch(e) {}
+  requestDriveToken(false);
+}
+
+function requestDriveToken(withPrompt = true) {
+  if (!tokenClient) { toast('Google no está listo. Reintentá.', 'error'); return; }
+  tokenClient.requestAccessToken({ prompt: withPrompt ? 'consent' : '' });
+}
+
+async function handleTokenResponse(response) {
+  if (response.error) { toast('Error al conectar con Drive: ' + response.error, 'error'); return; }
+  accessToken = response.access_token;
+  // Auto-refresh 5 min before expiry
+  if (response.expires_in) {
+    setTimeout(() => requestDriveToken(false), Math.max((response.expires_in - 300) * 1000, 0));
+  }
+  await loadFromDrive();
+  showScreen('app');
+  updateUserUI();
+  renderCurrentPage();
+}
+
+function updateUserUI() {
+  if (!userInfo) return;
+  document.getElementById('userName').textContent = userInfo.name || '—';
+  document.getElementById('userEmail').textContent = userInfo.email || '—';
+  const av = document.getElementById('userAvatar');
+  if (userInfo.picture) {
+    av.innerHTML = `<img src="${userInfo.picture}" style="width:28px;height:28px;border-radius:50%;">`;
+  } else {
+    av.textContent = (userInfo.name || '?')[0].toUpperCase();
+  }
+  document.getElementById('settings_apiKey').value = getSettings().anthropicKey || '';
+  document.getElementById('settings_clientId').value = getSettings().googleClientId || '';
+}
+
+function signOut() {
+  if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
+  accessToken = null; driveFileId = null; userInfo = null;
+  closeModal('modalSettings');
+  initGoogleAuth();
+}
+
+// ═══════════════════════════════════════════════════════
+// GOOGLE DRIVE SYNC
+// ═══════════════════════════════════════════════════════
+async function findOrCreateDriveFile() {
+  const q = encodeURIComponent(`name='${DRIVE_FILE_NAME}' and trashed=false`);
+  const res = await fetch(
+    `https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+  if (!res.ok) throw new Error('Drive search failed');
+  const { files } = await res.json();
+  if (files && files.length > 0) return files[0].id;
+
+  const createRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type':'application/json' },
+    body: JSON.stringify({ name: DRIVE_FILE_NAME, mimeType:'application/json' })
+  });
+  if (!createRes.ok) throw new Error('Drive create failed');
+  const file = await createRes.json();
+  return file.id;
+}
+
+async function loadFromDrive() {
+  setSyncStatus('loading');
+  try {
+    driveFileId = await findOrCreateDriveFile();
+    const res = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.trim().startsWith('{')) {
+        const loaded = JSON.parse(text);
+        // Merge with default structure
+        data = { habits:[], habitLogs:{}, goals:[], tasks:[], expenses:[], ...loaded };
+      } else {
+        // Empty file — seed demo data
+        seedDemo();
+        await saveToDriveNow();
+      }
+    }
+    setSyncStatus('saved');
+  } catch(e) {
+    console.error('Drive load:', e);
+    setSyncStatus('error');
+    // Try local backup
+    const bk = localStorage.getItem('base_data_backup');
+    if (bk) { try { data = JSON.parse(bk); } catch(_) {} }
+  }
+}
+
+async function saveToDriveNow() {
+  if (!driveFileId || !accessToken) {
+    localStorage.setItem('base_data_backup', JSON.stringify(data));
+    return;
+  }
+  setSyncStatus('saving');
+  try {
+    const content = JSON.stringify(data);
+    const meta = JSON.stringify({ name: DRIVE_FILE_NAME, mimeType:'application/json' });
+    const boundary = 'base_boundary_' + Date.now();
+    const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${meta}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n--${boundary}--`;
+
+    const res = await fetch(
+      `https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=multipart`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': `multipart/related; boundary="${boundary}"`
+        },
+        body
+      }
+    );
+    if (!res.ok) throw new Error('Upload failed: ' + res.status);
+    localStorage.setItem('base_data_backup', JSON.stringify(data));
+    setSyncStatus('saved');
+  } catch(e) {
+    console.error('Drive save:', e);
+    setSyncStatus('error');
+    localStorage.setItem('base_data_backup', JSON.stringify(data));
+  }
+}
+
+function saveData() {
+  localStorage.setItem('base_data_backup', JSON.stringify(data));
+  setSyncStatus('pending');
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(saveToDriveNow, 2000);
+}
+
+async function forceSave() { clearTimeout(syncTimer); await saveToDriveNow(); toast('Guardado en Drive ✓'); }
+
+function setSyncStatus(s) {
+  const el = document.getElementById('syncStatus'); if (!el) return;
+  const map = {
+    loading:  { t:'⏳ Cargando...', c:'var(--text2)' },
+    pending:  { t:'● Sin guardar',  c:'var(--yellow)' },
+    saving:   { t:'⟳ Guardando…',  c:'var(--blue)'   },
+    saved:    { t:'✓ Guardado',     c:'var(--green)'  },
+    error:    { t:'⚠ Error Drive',  c:'var(--red)'    }
+  };
+  const st = map[s] || map.saved;
+  el.textContent = st.t; el.style.color = st.c;
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `base_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('Datos exportados');
+}
+
+function importData(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      data = { habits:[], habitLogs:{}, goals:[], tasks:[], expenses:[], ...imported };
+      saveData(); renderCurrentPage(); closeModal('modalSettings');
+      toast('Datos importados correctamente');
+    } catch(_) { toast('Archivo inválido', 'error'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetAllData() {
+  if (!confirm('¿Seguro? Se borrarán TODOS los datos. Esto no se puede deshacer.')) return;
+  data = { habits:[], habitLogs:{}, goals:[], tasks:[], expenses:[] };
+  saveData(); closeModal('modalSettings'); navigate('habitos');
+  toast('Datos borrados');
+}
+
+// ═══════════════════════════════════════════════════════
+// CLAUDE AI — CHAT & RECEIPT
+// ═══════════════════════════════════════════════════════
+async function callClaude(messages, system, model = 'claude-haiku-4-5-20251001', maxTokens = 800) {
+  const { anthropicKey } = getSettings();
+  if (!anthropicKey) {
+    toast('Agrega tu API Key de Anthropic en Ajustes', 'error');
+    return null;
+  }
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': anthropicKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ model, max_tokens: maxTokens, system, messages })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'API error ' + res.status);
+  }
+  return await res.json();
+}
+
+// ── CHAT ──────────────────────────────────────────────
+let chatOpen = false;
+let chatHistory = [];
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  document.getElementById('chatPanel').classList.toggle('open', chatOpen);
+  document.getElementById('chatToggle').textContent = chatOpen ? '✕' : '💬';
+  if (chatOpen && chatHistory.length === 0) addChatMsg('assistant', '¡Hola! Podés decirme cosas como:\n• "gasté 25€ en el super hoy"\n• "nueva tarea: llamar al banco, alta prioridad"\n• "hice meditación"\n• "mi objetivo de ahorro está en 4.000€"');
+}
+
+function addChatMsg(role, text) {
+  chatHistory.push({ role, text });
+  const el = document.createElement('div');
+  el.className = `chat-msg ${role}`;
+  el.textContent = text;
+  const container = document.getElementById('chatMessages');
+  container.appendChild(el);
+  container.scrollTop = container.scrollHeight;
+  return el;
+}
+
+function chatKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim(); if (!text) return;
+  input.value = ''; input.style.height = '36px';
+  addChatMsg('user', text);
+  const thinking = addChatMsg('assistant', '…');
+  thinking.className += ' thinking';
+
+  const systemPrompt = `Sos el asistente personal de la app "Base". El usuario te habla en español y vos procesás su mensaje para registrar datos.
+
+SIEMPRE respondé con JSON válido en este formato exacto:
+{"action":"...","data":{...},"message":"Mensaje de confirmación en español, breve y amigable"}
+
+Acciones disponibles:
+- "add_expense": data = {desc:string, amount:number, cat:"Alimentación"|"Transporte"|"Entretenimiento"|"Salud"|"Ropa"|"Hogar"|"Educación"|"Suscripciones"|"Otros", date:"YYYY-MM-DD", type:"diario"|"fijo"|"planificado"}
+- "add_task": data = {title:string, priority:"alta"|"media"|"baja", cat:string, due:"YYYY-MM-DD"|"", notes:string}
+- "mark_habit": data = {name:string} (marca el hábito con ese nombre como hecho hoy)
+- "update_goal": data = {name:string, current:number} (actualiza el progreso de un objetivo)
+- "add_goal": data = {name:string, current:number, target:number, unit:string, color:"blue"|"green"|"purple"|"orange"}
+- "message": data = {} (solo para respuestas conversacionales o cuando no entendés)
+
+Hábitos existentes: ${data.habits.map(h=>h.name).join(', ') || 'ninguno'}
+Objetivos existentes: ${data.goals.map(g=>g.name).join(', ') || 'ninguno'}
+Fecha actual: ${todayStr()}`;
+
+  try {
+    const result = await callClaude(
+      [{ role:'user', content: text }],
+      systemPrompt
+    );
+    if (!result) { thinking.textContent = 'Necesitás configurar tu API Key en Ajustes.'; thinking.className = 'chat-msg assistant'; return; }
+
+    const raw = result.content[0].text;
+    let parsed;
+    try {
+      // Extract JSON even if wrapped in markdown
+      const match = raw.match(/\{[\s\S]*\}/);
+      parsed = JSON.parse(match ? match[0] : raw);
+    } catch(_) { parsed = { action:'message', data:{}, message: raw }; }
+
+    thinking.textContent = parsed.message || '✓';
+    thinking.className = 'chat-msg assistant';
+    processChatAction(parsed);
+  } catch(e) {
+    thinking.textContent = '⚠ Error: ' + e.message;
+    thinking.className = 'chat-msg assistant';
+  }
+}
+
+function processChatAction(parsed) {
+  const { action, data: d } = parsed;
+  if (action === 'add_expense') {
+    data.expenses.push({ id: uid(), desc: d.desc||'Gasto', amount: Number(d.amount)||0, cat: d.cat||'Otros', date: d.date||todayStr(), type: d.type||'diario' });
+    saveData(); if (currentPage() === 'gastos') renderExpenses();
+  } else if (action === 'add_task') {
+    data.tasks.push({ id: uid(), title: d.title||'Nueva tarea', priority: d.priority||'media', cat: d.cat||'', due: d.due||'', notes: d.notes||'', done: false, createdAt: todayStr() });
+    saveData(); if (currentPage() === 'tareas') renderTasks();
+  } else if (action === 'mark_habit') {
+    const h = data.habits.find(x => x.name.toLowerCase().includes((d.name||'').toLowerCase()));
+    if (h) {
+      const key = h.id + '_' + todayStr();
+      data.habitLogs[key] = true;
+      saveData(); if (currentPage() === 'habitos') renderHabits();
+    }
+  } else if (action === 'update_goal') {
+    const g = data.goals.find(x => x.name.toLowerCase().includes((d.name||'').toLowerCase()));
+    if (g) { g.current = Number(d.current)||g.current; saveData(); if (currentPage() === 'objetivos') renderGoals(); }
+  } else if (action === 'add_goal') {
+    data.goals.push({ id: uid(), name: d.name||'Nuevo objetivo', current: Number(d.current)||0, target: Number(d.target)||100, unit: d.unit||'', color: d.color||'blue', deadline:'', createdAt: todayStr() });
+    saveData(); if (currentPage() === 'objetivos') renderGoals();
+  }
+}
+
+// ── RECEIPT SCANNER ─────────────────────────────────
+async function handleReceiptUpload(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const area = document.getElementById('receiptArea');
+  const thumb = document.getElementById('receiptThumb');
+
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = (e) => { thumb.src = e.target.result; thumb.style.display = 'block'; };
+  reader.readAsDataURL(file);
+
+  area.textContent = '⏳ Leyendo recibo con Claude…';
+  area.className = 'receipt-upload-area scanning';
+
+  try {
+    const b64 = await fileToBase64(file);
+    const mediaType = file.type || 'image/jpeg';
+    const result = await callClaude([{
+      role: 'user',
+      content: [
+        { type:'image', source:{ type:'base64', media_type: mediaType, data: b64 } },
+        { type:'text', text: 'Extrae del recibo el monto total (número), la fecha (YYYY-MM-DD, si no hay usá ' + todayStr() + '), una descripción corta del comercio o producto, y la categoría más apropiada. Respondé SOLO con JSON: {"amount":0,"date":"","desc":"","cat":"Alimentación|Transporte|Entretenimiento|Salud|Ropa|Hogar|Educación|Suscripciones|Otros"}' }
+      ]
+    }], '', 'claude-sonnet-4-6', 300);
+
+    if (result) {
+      const raw = result.content[0].text;
+      const match = raw.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(match ? match[0] : raw);
+      if (parsed.amount) document.getElementById('e_amount').value = parsed.amount;
+      if (parsed.date)   document.getElementById('e_date').value   = parsed.date;
+      if (parsed.desc)   document.getElementById('e_desc').value   = parsed.desc;
+      if (parsed.cat)    document.getElementById('e_cat').value    = parsed.cat;
+      area.textContent = '✅ Recibo leído — revisá y confirmá los datos';
+      area.className = 'receipt-upload-area';
+      toast('Recibo procesado por Claude');
+    }
+  } catch(e) {
+    area.textContent = '⚠ No pude leer el recibo. Completá los datos manualmente.';
+    area.className = 'receipt-upload-area';
+    console.error(e);
+  }
+  event.target.value = '';
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION & SCREENS
+// ═══════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function currentPage() {
+  const p = document.querySelector('.page.active');
+  return p ? p.id.replace('page-','') : '';
+}
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+page+"'")) n.classList.add('active');
+  });
+  if (page === 'habitos')   renderHabits();
+  if (page === 'objetivos') renderGoals();
+  if (page === 'tareas')    renderTasks();
+  if (page === 'gastos')    renderExpenses();
+}
+
+function renderCurrentPage() {
+  const p = currentPage();
+  if (p) navigate(p); else navigate('habitos');
+}
+
+// ═══════════════════════════════════════════════════════
+// UI UTILITIES
+// ═══════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id);
+});
+
+let toastTimer;
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.innerHTML = (type==='success'?'✅':'❌') + ' ' + msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function fmtDate(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T12:00:00');
+  return d.getDate() + ' ' + MONTHS_ES[d.getMonth()] + ' ' + d.getFullYear();
+}
+function fmtMoney(n) {
+  return Number(n).toLocaleString('es-ES', { style:'currency', currency:'EUR', minimumFractionDigits:2, maximumFractionDigits:2 });
+}
+
+// ═══════════════════════════════════════════════════════
+// HÁBITOS
+// ═══════════════════════════════════════════════════════
+function isHabitDoneOnDate(h, dateStr) {
+  if (!h.subActivities || !h.subActivities.length)
+    return !!data.habitLogs[h.id + '_' + dateStr];
+  return h.subActivities.every(s => data.habitLogs[h.id + '_sub_' + s.id + '_' + dateStr]);
+}
+
+function getStreak(h) {
+  let streak = 0, d = new Date();
+  if (!isHabitDoneOnDate(h, todayStr())) d.setDate(d.getDate()-1);
+  for (let i = 0; i < 365; i++) {
+    const ds = d.toISOString().slice(0,10);
+    if (isHabitDoneOnDate(h, ds)) { streak++; d.setDate(d.getDate()-1); } else break;
+  }
+  return streak;
+}
+
+function addSubActivity() {
+  const inp = document.getElementById('h_subin');
+  const name = inp.value.trim(); if (!name) return;
+  tempSubActivities.push({ id: uid(), name }); inp.value = '';
+  document.getElementById('h_sublist').innerHTML = tempSubActivities.map(s =>
+    `<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);padding:7px 10px;border-radius:7px;border:1px solid var(--border);">
+      <span style="flex:1;font-size:13px;">• ${s.name}</span>
+      <button class="btn-icon" style="width:22px;height:22px;font-size:12px;" onclick="removeSub('${s.id}')">×</button>
+    </div>`
+  ).join('');
+}
+function removeSub(id) { tempSubActivities = tempSubActivities.filter(s=>s.id!==id); addSubActivity(); document.getElementById('h_subin').value=''; }
+
+function addHabit() {
+  const name = document.getElementById('h_name').value.trim();
+  if (!name) { toast('Escribe el nombre', 'error'); return; }
+  const emoji = document.getElementById('h_emoji').value.trim() || '⭐';
+  const color = document.getElementById('h_color').value;
+  data.habits.push({ id:uid(), name, emoji, color, createdAt:todayStr(), subActivities:[...tempSubActivities] });
+  saveData(); closeModal('modalHabit');
+  document.getElementById('h_name').value = '';
+  document.getElementById('h_emoji').value = '';
+  tempSubActivities = [];
+  document.getElementById('h_sublist').innerHTML = '';
+  renderHabits(); toast('Hábito creado');
+}
+
+function toggleHabit(id) {
+  const h = data.habits.find(x=>x.id===id);
+  if (h && h.subActivities && h.subActivities.length) return;
+  const key = id + '_' + todayStr();
+  if (data.habitLogs[key]) delete data.habitLogs[key]; else data.habitLogs[key] = true;
+  saveData(); renderHabits();
+}
+
+function toggleSubHabit(hid, sid) {
+  const key = hid + '_sub_' + sid + '_' + todayStr();
+  if (data.habitLogs[key]) delete data.habitLogs[key]; else data.habitLogs[key] = true;
+  const h = data.habits.find(x=>x.id===hid);
+  if (h && h.subActivities && h.subActivities.length) {
+    const allDone = h.subActivities.every(s => data.habitLogs[hid+'_sub_'+s.id+'_'+todayStr()]);
+    const mk = hid + '_' + todayStr();
+    if (allDone) data.habitLogs[mk] = true; else delete data.habitLogs[mk];
+  }
+  saveData(); renderHabits();
+}
+
+function deleteHabit(id) {
+  if (!confirm('¿Eliminar hábito?')) return;
+  data.habits = data.habits.filter(h=>h.id!==id);
+  Object.keys(data.habitLogs).forEach(k => { if (k.startsWith(id+'_')||k.startsWith(id+'_sub_')) delete data.habitLogs[k]; });
+  saveData(); renderHabits(); toast('Hábito eliminado');
+}
+
+function renderHabits() {
+  const today = todayStr();
+  const now = new Date();
+  document.getElementById('todayLabel').textContent = now.getDate() + ' de ' + MONTHS_ES[now.getMonth()];
+
+  const total = data.habits.length;
+  const doneToday = data.habits.filter(h => isHabitDoneOnDate(h, today)).length;
+  const maxStreak = total ? Math.max(...data.habits.map(h => getStreak(h))) : 0;
+  document.getElementById('habitStats').innerHTML = `
+    <div class="stat-card"><div class="stat-val" style="color:var(--blue)">${doneToday}/${total}</div><div class="stat-lbl">Hoy</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--orange)">${maxStreak}</div><div class="stat-lbl">Mejor racha 🔥</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--green)">${total===0?'—':Math.round(doneToday/total*100)}%</div><div class="stat-lbl">Completitud</div></div>`;
+
+  const list = document.getElementById('habitList');
+  if (!total) { list.innerHTML = '<div class="empty-state"><span class="emoji">🔥</span>¡Crea tu primer hábito!</div>'; renderHabitCalendar(); return; }
+
+  list.innerHTML = data.habits.map(h => {
+    const hasSubs = h.subActivities && h.subActivities.length > 0;
+    const done = isHabitDoneOnDate(h, today);
+    const streak = getStreak(h);
+    const color = COLORS[h.color] || COLORS.blue;
+    const doneCount = hasSubs ? h.subActivities.filter(s => !!data.habitLogs[h.id+'_sub_'+s.id+'_'+today]).length : 0;
+    const subsHtml = hasSubs ? `<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:2px;">${doneCount}/${h.subActivities.length} actividades</div>
+      ${h.subActivities.map(s => {
+        const sd = !!data.habitLogs[h.id+'_sub_'+s.id+'_'+today];
+        return `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg);border-radius:7px;">
+          <div onclick="toggleSubHabit('${h.id}','${s.id}')" style="width:18px;height:18px;border-radius:5px;border:2px solid ${sd?color:'var(--border)'};background:${sd?color:'transparent'};display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;color:#000;">${sd?'✓':''}</div>
+          <span style="font-size:13px;${sd?'color:var(--text2);text-decoration:line-through;':''}">${s.name}</span>
+        </div>`;
+      }).join('')}</div>` : '';
+
+    return `<div class="habit-item" style="border-left:3px solid ${color}">
+      <div class="habit-row">
+        ${!hasSubs
+          ? `<div class="habit-check ${done?'done':''}" onclick="toggleHabit('${h.id}')" style="${done?`background:${color};border-color:${color};`:``}border-color:${color}">${done?'✓':''}</div>`
+          : `<div style="width:28px;height:28px;border-radius:50%;border:2px solid ${color};display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;background:${done?color:'transparent'};">${done?'✓':h.emoji}</div>`
+        }
+        <div class="habit-info" style="flex:1">
+          <div class="habit-name">${h.emoji} ${h.name}</div>
+          <div class="habit-meta">Desde ${fmtDate(h.createdAt)}</div>
+        </div>
+        <div class="streak-badge">${streak>0?'🔥':'💤'} ${streak} días</div>
+        <button class="btn-icon" onclick="deleteHabit('${h.id}')">🗑</button>
+      </div>
+      ${subsHtml}
+    </div>`;
+  }).join('');
+  renderHabitCalendar();
+}
+
+function changeHabitMonth(dir) {
+  habitCalMonth += dir;
+  if (habitCalMonth>11){habitCalMonth=0;habitCalYear++;}
+  if (habitCalMonth<0){habitCalMonth=11;habitCalYear--;}
+  renderHabitCalendar();
+}
+
+function renderHabitCalendar() {
+  document.getElementById('habitMonthLabel').textContent = MONTHS_ES[habitCalMonth] + ' ' + habitCalYear;
+  const cal = document.getElementById('habitCalendar');
+  if (!data.habits.length) { cal.innerHTML = '<div style="color:var(--text2);font-size:13px;text-align:center;padding:20px">Sin hábitos</div>'; return; }
+  const today = todayStr();
+  const days = new Date(habitCalYear, habitCalMonth+1, 0).getDate();
+  cal.innerHTML = data.habits.map(h => {
+    const color = COLORS[h.color]||COLORS.blue;
+    return `<div style="margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+        <span style="color:${color}">${h.emoji}</span>${h.name}
+      </div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        ${Array.from({length:days},(_,i)=>{
+          const d = i+1;
+          const ds = habitCalYear+'-'+String(habitCalMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+          const isDone = isHabitDoneOnDate(h, ds);
+          const isToday = ds === today;
+          const isFuture = ds > today;
+          return `<div style="width:26px;height:26px;border-radius:5px;background:${isDone?color:'var(--bg3)'};color:${isDone?'#000':isFuture?'rgba(139,148,158,.3)':'var(--text2)'};font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:500;${isToday?`outline:2px solid ${color};outline-offset:1px;`:''};">${d}</div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// OBJETIVOS
+// ═══════════════════════════════════════════════════════
+function saveGoal() {
+  const name = document.getElementById('g_name').value.trim();
+  if (!name) { toast('Escribe el nombre', 'error'); return; }
+  const current = parseFloat(document.getElementById('g_current').value)||0;
+  const target  = parseFloat(document.getElementById('g_target').value)||100;
+  const unit    = document.getElementById('g_unit').value.trim();
+  const color   = document.getElementById('g_color').value;
+  const deadline= document.getElementById('g_deadline').value;
+  const editId  = document.getElementById('g_edit_id').value;
+  if (editId) {
+    const g = data.goals.find(x=>x.id===editId);
+    if (g) Object.assign(g, {name,current,target,unit,color,deadline});
+  } else {
+    data.goals.push({id:uid(),name,current,target,unit,color,deadline,createdAt:todayStr()});
+  }
+  saveData(); closeModal('modalGoal');
+  document.getElementById('g_edit_id').value='';
+  document.getElementById('goalModalTitle').textContent='Nuevo objetivo';
+  ['g_name','g_current','g_target','g_unit','g_deadline'].forEach(id=>document.getElementById(id).value='');
+  renderGoals(); toast(editId?'Objetivo actualizado':'Objetivo creado');
+}
+
+function openEditGoal(id) {
+  const g = data.goals.find(x=>x.id===id); if(!g) return;
+  document.getElementById('g_name').value=g.name;
+  document.getElementById('g_current').value=g.current;
+  document.getElementById('g_target').value=g.target;
+  document.getElementById('g_unit').value=g.unit||'';
+  document.getElementById('g_color').value=g.color;
+  document.getElementById('g_deadline').value=g.deadline||'';
+  document.getElementById('g_edit_id').value=id;
+  document.getElementById('goalModalTitle').textContent='Editar objetivo';
+  openModal('modalGoal');
+}
+
+function openProgressModal(id) {
+  const g = data.goals.find(x=>x.id===id); if(!g) return;
+  document.getElementById('gp_id').value=id;
+  document.getElementById('gp_value').value=g.current;
+  document.getElementById('goalProgressInfo').innerHTML=`<b>${g.name}</b><br>Actual: <b>${g.current} / ${g.target} ${g.unit||''}</b>`;
+  openModal('modalGoalProgress');
+}
+
+function updateGoalProgress() {
+  const id = document.getElementById('gp_id').value;
+  const val = parseFloat(document.getElementById('gp_value').value);
+  if (isNaN(val)) { toast('Ingresa un valor', 'error'); return; }
+  const g = data.goals.find(x=>x.id===id); if(!g) return;
+  g.current = Math.min(val, g.target);
+  saveData(); closeModal('modalGoalProgress'); renderGoals(); toast('Progreso actualizado');
+}
+
+function deleteGoal(id) {
+  if (!confirm('¿Eliminar objetivo?')) return;
+  data.goals = data.goals.filter(g=>g.id!==id);
+  saveData(); renderGoals(); toast('Objetivo eliminado');
+}
+
+function renderGoals() {
+  const list = document.getElementById('goalList');
+  if (!data.goals.length) { list.innerHTML='<div class="empty-state"><span class="emoji">🎯</span>¡Define tu primera meta!</div>'; return; }
+  list.innerHTML = data.goals.map(g => {
+    const pct = Math.min(100, Math.round(g.current/g.target*100));
+    const color = COLORS[g.color]||COLORS.blue;
+    const daysLeft = g.deadline ? Math.ceil((new Date(g.deadline+'T12:00:00')-new Date())/86400000) : null;
+    return `<div class="goal-item" style="border-left:3px solid ${color}">
+      <div class="goal-header">
+        <div style="font-size:15px;font-weight:600">${g.name}</div>
+        <div style="font-size:18px;font-weight:700;color:${color}">${pct}%</div>
+      </div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="goal-footer">
+        <div class="goal-vals">${g.current} / ${g.target} ${g.unit||''}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${g.deadline?`<span style="font-size:11px;color:var(--text2)">${daysLeft>=0?daysLeft+' días':'Vencido'}</span>`:''}
+          <button class="btn btn-sm btn-ghost" onclick="openProgressModal('${g.id}')">↑ Progreso</button>
+          <button class="btn-icon" onclick="openEditGoal('${g.id}')">✏️</button>
+          <button class="btn-icon" onclick="deleteGoal('${g.id}')">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// TAREAS
+// ═══════════════════════════════════════════════════════
+function filterTasks(f) {
+  taskFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter===f));
+  renderTasks();
+}
+
+function addTask() {
+  const title = document.getElementById('t_title').value.trim();
+  if (!title) { toast('Escribe el título', 'error'); return; }
+  data.tasks.push({ id:uid(), title, notes:document.getElementById('t_notes').value.trim(), priority:document.getElementById('t_priority').value, cat:document.getElementById('t_cat').value.trim(), due:document.getElementById('t_due').value, done:false, createdAt:todayStr() });
+  saveData(); closeModal('modalTask');
+  ['t_title','t_notes','t_cat','t_due'].forEach(id => document.getElementById(id).value='');
+  renderTasks(); toast('Tarea agregada');
+}
+
+function toggleTask(id) {
+  const t = data.tasks.find(x=>x.id===id); if(t){ t.done=!t.done; saveData(); renderTasks(); }
+}
+
+function deleteTask(id) {
+  data.tasks = data.tasks.filter(t=>t.id!==id); saveData(); renderTasks(); toast('Tarea eliminada');
+}
+
+function renderTasks() {
+  let filtered = [...data.tasks];
+  if (taskFilter==='pendiente')  filtered=filtered.filter(t=>!t.done);
+  else if (taskFilter==='completada') filtered=filtered.filter(t=>t.done);
+  else if (['alta','media','baja'].includes(taskFilter)) filtered=filtered.filter(t=>t.priority===taskFilter);
+  const pOrd={alta:0,media:1,baja:2};
+  filtered.sort((a,b)=>{ if(a.done!==b.done) return a.done?1:-1; return (pOrd[a.priority]||1)-(pOrd[b.priority]||1); });
+  const list=document.getElementById('taskList');
+  if (!filtered.length){ list.innerHTML=`<div class="empty-state"><span class="emoji">✅</span>${data.tasks.length?'Sin tareas con ese filtro.':'¡Sin tareas pendientes!'}</div>`; return; }
+  const pc={'alta':'var(--red)','media':'var(--yellow)','baja':'var(--green)'};
+  list.innerHTML=filtered.map(t=>`
+    <div class="task-item ${t.done?'done':''}">
+      <div class="task-cb ${t.done?'checked':''}" onclick="toggleTask('${t.id}')">${t.done?'✓':''}</div>
+      <div class="task-body">
+        <div class="task-title">${t.title}</div>
+        ${t.notes?`<div class="task-meta">${t.notes}</div>`:''}
+        <div class="task-meta">
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${pc[t.priority]||'var(--text2)'};margin-right:4px;"></span>${t.priority}</span>
+          ${t.cat?`<span>🏷 ${t.cat}</span>`:''}
+          ${t.due?`<span>📅 ${fmtDate(t.due)}</span>`:''}
+        </div>
+      </div>
+      <button class="btn-icon" onclick="deleteTask('${t.id}')">🗑</button>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// GASTOS
+// ═══════════════════════════════════════════════════════
+function switchExpenseTab(tab) {
+  expenseTab = tab;
+  ['todos','diario','fijo','planificado'].forEach(t => { const el=document.getElementById('etab_'+t); if(el) el.classList.toggle('active',t===tab); });
+  renderExpenseList();
+}
+
+function addExpense() {
+  const desc   = document.getElementById('e_desc').value.trim();
+  const amount = parseFloat(document.getElementById('e_amount').value);
+  const cat    = document.getElementById('e_cat').value;
+  const date   = document.getElementById('e_date').value || todayStr();
+  const type   = document.querySelector('input[name="e_type"]:checked').value;
+  if (!desc || isNaN(amount) || amount<=0) { toast('Completa los campos requeridos','error'); return; }
+  data.expenses.push({id:uid(),desc,amount,cat,date,type});
+  saveData(); closeModal('modalExpense');
+  ['e_desc','e_amount'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('receiptThumb').style.display='none';
+  document.getElementById('receiptArea').textContent='📷 Subir foto del recibo — Claude leerá los datos automáticamente';
+  document.getElementById('receiptArea').className='receipt-upload-area';
+  renderExpenses(); toast('Gasto registrado');
+}
+
+function deleteExpense(id) {
+  data.expenses=data.expenses.filter(e=>e.id!==id); saveData(); renderExpenses(); toast('Gasto eliminado');
+}
+
+function markExpensePaid(id) {
+  const e=data.expenses.find(x=>x.id===id); if(!e) return;
+  e.status='pagado'; e.paidDate=todayStr();
+  saveData(); renderExpenses(); toast('Marcado como pagado ✅');
+}
+
+function changeExpenseMonth(dir) {
+  expenseMonth+=dir;
+  if(expenseMonth>11){expenseMonth=0;expenseYear++;}
+  if(expenseMonth<0){expenseMonth=11;expenseYear--;}
+  renderExpenses();
+}
+
+function renderExpenses() {
+  document.getElementById('expenseMonthLabel').textContent = MONTHS_ES[expenseMonth]+' '+expenseYear;
+  const ms = expenseYear+'-'+String(expenseMonth+1).padStart(2,'0');
+  const allMonth = data.expenses.filter(e=>e.date.startsWith(ms));
+  const monthExp = allMonth.filter(e=>e.type!=='planificado');
+  const planned  = data.expenses.filter(e=>e.type==='planificado');
+  const pendingP = planned.filter(e=>e.status!=='pagado');
+  const totalFijo   = monthExp.filter(e=>e.type==='fijo').reduce((s,e)=>s+e.amount,0);
+  const totalDiario = monthExp.filter(e=>e.type==='diario').reduce((s,e)=>s+e.amount,0);
+  const totalPend   = pendingP.reduce((s,e)=>s+e.amount,0);
+
+  document.getElementById('expenseSummary').innerHTML=`
+    <div class="summary-card" style="border-left:3px solid var(--purple)">
+      <div class="summary-lbl">🔁 Fijos</div>
+      <div class="summary-val" style="color:var(--purple)">${fmtMoney(totalFijo)}</div>
+      <div class="summary-sub">${monthExp.filter(e=>e.type==='fijo').length} conceptos</div>
+    </div>
+    <div class="summary-card" style="border-left:3px solid var(--blue)">
+      <div class="summary-lbl">📅 Diarios</div>
+      <div class="summary-val" style="color:var(--blue)">${fmtMoney(totalDiario)}</div>
+      <div class="summary-sub">${monthExp.filter(e=>e.type==='diario').length} movimientos</div>
+    </div>
+    <div class="summary-card" style="border-left:3px solid var(--yellow)">
+      <div class="summary-lbl">📋 Planificados</div>
+      <div class="summary-val" style="color:var(--yellow)">${fmtMoney(totalPend)}</div>
+      <div class="summary-sub">${pendingP.length} pendientes</div>
+    </div>`;
+
+  renderExpenseList();
+
+  const catMap={};
+  monthExp.forEach(e=>{ catMap[e.cat]=(catMap[e.cat]||0)+e.amount; });
+  const catSorted=Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const maxC=catSorted.length?catSorted[0][1]:1;
+  const cb=document.getElementById('expenseCatBar');
+  if(!catSorted.length){cb.innerHTML='<div style="color:var(--text2);font-size:13px;text-align:center;padding:20px">Sin datos</div>';return;}
+  cb.innerHTML=catSorted.map(([cat,amt],i)=>`
+    <div class="cat-row">
+      <div class="cat-label"><span>${CAT_ICONS[cat]||'📦'}</span><span style="font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cat}</span></div>
+      <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${(amt/maxC*100).toFixed(1)}%;background:${CAT_COLORS[i%CAT_COLORS.length]}"></div></div>
+      <div class="cat-amount">${fmtMoney(amt)}</div>
+    </div>`).join('');
+}
+
+function renderExpenseList() {
+  const ms = expenseYear+'-'+String(expenseMonth+1).padStart(2,'0');
+  let expenses;
+  if (expenseTab==='planificado') {
+    expenses = data.expenses.filter(e=>e.type==='planificado').sort((a,b)=>a.date.localeCompare(b.date));
+  } else {
+    expenses = data.expenses.filter(e=>e.date.startsWith(ms) && e.type!=='planificado');
+    if (expenseTab==='fijo')   expenses=expenses.filter(e=>e.type==='fijo');
+    if (expenseTab==='diario') expenses=expenses.filter(e=>e.type==='diario');
+    expenses.sort((a,b)=>b.date.localeCompare(a.date));
+  }
+  const list=document.getElementById('expenseList');
+  const msgs={fijo:'Sin gastos fijos.',diario:'Sin gastos diarios.',planificado:'Sin gastos planificados.',todos:'Sin gastos este mes.'};
+  if(!expenses.length){list.innerHTML=`<div class="empty-state"><span class="emoji">💰</span>${msgs[expenseTab]||'Sin gastos.'}</div>`;return;}
+
+  list.innerHTML=expenses.map(e=>{
+    const icon=CAT_ICONS[e.cat]||'📦';
+    let badge, right;
+    if(e.type==='planificado'){
+      const paid=e.status==='pagado', over=!paid&&e.date<todayStr();
+      badge=paid?`<span style="font-size:10px;background:rgba(63,185,80,.15);color:var(--green);padding:2px 6px;border-radius:4px;font-weight:600">✅ Pagado</span>`
+            :over?`<span style="font-size:10px;background:rgba(248,81,73,.15);color:var(--red);padding:2px 6px;border-radius:4px;font-weight:600">⚠️ Vencido</span>`
+            :`<span style="font-size:10px;background:rgba(210,153,34,.15);color:var(--yellow);padding:2px 6px;border-radius:4px;font-weight:600">⏳ Pendiente</span>`;
+      right=`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <div class="expense-amount" style="color:${paid?'var(--green)':over?'var(--red)':'var(--yellow)'}">${fmtMoney(e.amount)}</div>
+        <div style="display:flex;gap:4px;">${!paid?`<button class="btn btn-sm btn-ghost" style="font-size:11px;" onclick="markExpensePaid('${e.id}')">✅ Pagar</button>`:''}<button class="btn-icon" onclick="deleteExpense('${e.id}')">🗑</button></div>
+      </div>`;
+    } else {
+      badge=e.type==='fijo'
+        ?`<span style="font-size:10px;background:rgba(188,140,255,.15);color:var(--purple);padding:2px 6px;border-radius:4px;font-weight:600">🔁 Fijo</span>`
+        :`<span style="font-size:10px;background:rgba(88,166,255,.12);color:var(--blue);padding:2px 6px;border-radius:4px;font-weight:600">📅 Diario</span>`;
+      right=`<div style="display:flex;align-items:center;gap:8px;"><div class="expense-amount">${fmtMoney(e.amount)}</div><button class="btn-icon" onclick="deleteExpense('${e.id}')">🗑</button></div>`;
+    }
+    const dateLabel=e.type==='planificado'?'Vence: '+fmtDate(e.date):fmtDate(e.date);
+    return `<div class="expense-item">
+      <div class="expense-cat-icon" style="background:${CAT_BG[e.cat]||'rgba(139,148,158,.15)'}">${icon}</div>
+      <div class="expense-info">
+        <div class="expense-name">${e.desc}</div>
+        <div class="expense-meta" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${badge}<span>${e.cat} · ${dateLabel}</span></div>
+      </div>
+      ${right}
+    </div>`;
+  }).join('');
+}
+
+// Radio label sync
+document.addEventListener('change', e => {
+  if (e.target.name==='e_type') {
+    document.getElementById('lbl_diario').style.borderColor = e.target.value==='diario'?'var(--blue)':'var(--border)';
+    document.getElementById('lbl_fijo').style.borderColor   = e.target.value==='fijo'?'var(--purple)':'var(--border)';
+    document.getElementById('lbl_planificado').style.borderColor = e.target.value==='planificado'?'var(--yellow)':'var(--border)';
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// DEMO DATA
+// ═══════════════════════════════════════════════════════
+function seedDemo() {
+  const h1=uid(),h2=uid(),h3=uid(),s1=uid(),s2=uid(),s3=uid();
+  data.habits=[
+    {id:h1,name:'Ejercicio',emoji:'💪',color:'orange',createdAt:todayStr(),subActivities:[{id:s1,name:'Caminar 30 min'},{id:s2,name:'Abdominales'},{id:s3,name:'Sentadillas'}]},
+    {id:h2,name:'Meditación',emoji:'🧘',color:'purple',createdAt:todayStr(),subActivities:[]},
+    {id:h3,name:'Lectura',emoji:'📖',color:'blue',createdAt:todayStr(),subActivities:[]},
+  ];
+  const now=new Date();
+  for(let d=0;d<10;d++){
+    const dt=new Date(now); dt.setDate(dt.getDate()-d);
+    const ds=dt.toISOString().slice(0,10);
+    if(d<7){data.habitLogs[h1+'_sub_'+s1+'_'+ds]=true;data.habitLogs[h1+'_sub_'+s2+'_'+ds]=true;data.habitLogs[h1+'_sub_'+s3+'_'+ds]=true;data.habitLogs[h1+'_'+ds]=true;}
+    if(d%2===0){data.habitLogs[h2+'_'+ds]=true;}
+    if(d<4){data.habitLogs[h3+'_'+ds]=true;}
+  }
+  data.goals=[
+    {id:uid(),name:'Ahorro anual',current:3500,target:10000,unit:'€',color:'green',deadline:new Date(new Date().getFullYear(),11,31).toISOString().slice(0,10),createdAt:todayStr()},
+    {id:uid(),name:'Libros leídos',current:4,target:12,unit:'libros',color:'blue',deadline:'',createdAt:todayStr()},
+    {id:uid(),name:'Correr km',current:45,target:100,unit:'km',color:'orange',deadline:'',createdAt:todayStr()},
+  ];
+  data.tasks=[
+    {id:uid(),title:'Revisar correos del trabajo',notes:'',priority:'alta',cat:'Trabajo',due:'',done:false,createdAt:todayStr()},
+    {id:uid(),title:'Pagar el alquiler',notes:'',priority:'alta',cat:'Hogar',due:todayStr(),done:false,createdAt:todayStr()},
+    {id:uid(),title:'Llamar al médico',notes:'Para revisión anual',priority:'media',cat:'Salud',due:'',done:false,createdAt:todayStr()},
+    {id:uid(),title:'Comprar víveres',notes:'',priority:'baja',cat:'Personal',due:'',done:true,createdAt:todayStr()},
+  ];
+  const m=String(now.getMonth()+1).padStart(2,'0'),y=now.getFullYear();
+  data.expenses=[
+    {id:uid(),desc:'Alquiler',amount:950,cat:'Hogar',date:`${y}-${m}-01`,type:'fijo'},
+    {id:uid(),desc:'Netflix',amount:17.99,cat:'Suscripciones',date:`${y}-${m}-02`,type:'fijo'},
+    {id:uid(),desc:'Supermercado',amount:78.50,cat:'Alimentación',date:`${y}-${m}-03`,type:'diario'},
+    {id:uid(),desc:'Gasolina',amount:55,cat:'Transporte',date:`${y}-${m}-05`,type:'diario'},
+    {id:uid(),desc:'Dentista',amount:95,cat:'Salud',date:`${y}-${m}-20`,type:'planificado',status:'pendiente'},
+  ];
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  const now = new Date();
+  document.getElementById('sidebarDate').textContent =
+    DAYS_ES[now.getDay()] + ' ' + now.getDate() + ' ' + MONTHS_ES[now.getMonth()];
+  document.getElementById('e_date').value = todayStr();
+  initGoogleAuth();
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
