@@ -318,7 +318,7 @@ option{background:var(--bg2);}
     <div id="page-habitos" class="page active">
       <div class="page-hd">
         <div class="page-hd-left"><h1>Hábitos</h1><p>Hábitos diarios y rachas</p></div>
-        <button class="btn btn-primary" onclick="openModal('mHabit')">+ Hábito</button>
+        <button class="btn btn-primary" onclick="openHabitModal()">+ Hábito</button>
       </div>
       <div class="g3" id="habitStats" style="margin-bottom:20px"></div>
       <div style="font-size:13px;font-weight:500;margin-bottom:10px">Hoy — <span id="todayLabel"></span></div>
@@ -340,7 +340,7 @@ option{background:var(--bg2);}
     <div id="page-objetivos" class="page">
       <div class="page-hd">
         <div class="page-hd-left"><h1>Objetivos</h1><p>Progreso de tus metas</p></div>
-        <button class="btn btn-primary" onclick="openModal('mGoal')">+ Objetivo</button>
+        <button class="btn btn-primary" onclick="openGoalModal()">+ Objetivo</button>
       </div>
       <div class="goal-list" id="goalList"></div>
     </div>
@@ -349,7 +349,7 @@ option{background:var(--bg2);}
     <div id="page-tareas" class="page">
       <div class="page-hd">
         <div class="page-hd-left"><h1>Tareas</h1><p>Pendientes y subtareas</p></div>
-        <button class="btn btn-primary" onclick="openModal('mTask')">+ Tarea</button>
+        <button class="btn btn-primary" onclick="openTaskModal()">+ Tarea</button>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
         <div class="pills">
@@ -368,7 +368,7 @@ option{background:var(--bg2);}
     <div id="page-gastos" class="page">
       <div class="page-hd">
         <div class="page-hd-left"><h1>Gastos</h1><p>Finanzas en euros</p></div>
-        <button class="btn btn-primary" onclick="openModal('mExpense')">+ Gasto</button>
+        <button class="btn btn-primary" onclick="openExpenseModal()">+ Gasto</button>
       </div>
       <div class="expense-cards" id="expSummary"></div>
       <div class="g2" style="gap:18px">
@@ -570,9 +570,13 @@ option{background:var(--bg2);}
       <div><label class="lbl">Mes de inicio</label><input class="inp" type="month" id="e_cuota_start"></div>
       <div><label class="lbl">Número de cuotas</label>
         <select class="sel" id="e_cuotas">
-          <option value="2">2 cuotas</option><option value="3">3 cuotas</option>
-          <option value="6">6 cuotas</option><option value="9">9 cuotas</option>
-          <option value="12">12 cuotas</option><option value="18">18 cuotas</option>
+          <option value="2">2 cuotas</option>
+          <option value="3">3 cuotas</option>
+          <option value="4">4 cuotas</option>
+          <option value="6">6 cuotas</option>
+          <option value="9">9 cuotas</option>
+          <option value="12">12 cuotas</option>
+          <option value="18">18 cuotas</option>
           <option value="24">24 cuotas</option>
         </select>
       </div>
@@ -1247,7 +1251,7 @@ function saveExpense(){
   }
 
   if(type==='deuda'){
-    const start=document.getElementById('e_cuota_start').value;
+    const start=document.getElementById('e_cuota_start').value||nowMonth();
     const cuotas=+document.getElementById('e_cuotas').value;
     const baseId=uid();
     const[sy,sm]=start.split('-').map(Number);
